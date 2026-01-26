@@ -2,7 +2,7 @@
 from typing import Optional
 from schemas.userSchema import UserCreate, UserUpdate, UserRead
 from typing import Protocol
-from Middleware.DataProvider.IdentityProvider.userProvider import UserProvider
+from Middleware.DataProvider.user_provider import UserProvider
 from backend.core.error import NotFoundError
 
 

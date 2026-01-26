@@ -1,14 +1,21 @@
-from sqlmodel import SQLModel, Field
+from sqlmodel import Field
 from typing import Optional, ClassVar
 from datetime import datetime
+from database.model.tenantModel.company import Company
+from sqlmodel import Relationship
+from ..base import BaseModel
 
-class User(SQLModel, table=True):
-    __tablename__: ClassVar[str] = "users"
-
-    id: Optional[int] = Field(default=None, primary_key=True)
-    username: str = Field(index=True, unique=True, nullable=False)
-    email: str = Field(index=True, unique=True, nullable=False)
-    hashed_password: str = Field(nullable=False)
+class User(BaseModel, table=True):
+    """
+    Represents a user within a company (tenant)
+    """
+    username: str = Field(..., max_length=50, unique=True, index=True)
+    email: str = Field(..., max_length=150, unique=True, index=True)
+    hashed_password: str = Field(...)
+    full_name: Optional[str] = Field(default=None, max_length=150)
+    role: Optional[str] = Field(default="user", max_length=50)
     is_active: bool = Field(default=True)
-    is_superuser: bool = Field(default=False)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    last_login: Optional[str] = Field(default=None)
+
+    # Relationships
+    company: Optional[Company] = Relationship(back_populates="users")

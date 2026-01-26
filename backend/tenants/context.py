@@ -12,7 +12,7 @@ This module provides tenant context management, allowing the application to:
 from typing import Optional
 from uuid import UUID
 from contextvars import ContextVar
-from Middleware.DataProvider.TenantProvider import TenantProvider
+from Middleware.DataProvider.tenantProvider import TenantProvider
 from .tenant import TenantService
 from schemas.tenantSchema import TenantRead
 

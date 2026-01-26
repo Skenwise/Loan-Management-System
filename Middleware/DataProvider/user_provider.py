@@ -1,51 +1,109 @@
-# providers/user_provider.py
-from sqlmodel import select
-from .base_provider import BaseProvider
-from database.model.AuthModel import *
-from typing import Optional, List, cast
+# Middleware/DataProvider/Identityrovider/userProvider.py
+from typing import Optional
+from sqlmodel import Session, select
+from database.model.AuthModel.user import User
+from schemas.userSchema import UserCreate, UserUpdate
+from backend.core.error import NotFoundError
 
-class UserProvider(BaseProvider):
+class UserProvider:
+    """
+    Data provider for User operations.
+    Handles all direct interactions with the database for User entities.
 
-    async def create_user(self, user: User) -> User:
-        return cast(User, await self.create(user))
+    This class isolates database operations, so service layers or adapters
+    do not need to know about SQLModel or DB session management.
+    """
 
-    async def get_user_by_id(self, user_id: int) -> Optional[User]:
-        return cast(User, await self.get_by_id(User, user_id))
+    def __init__(self, session: Session):
+        """
+        Initialize the provider with a database session.
 
-    async def get_user_by_email(self, email: str) -> Optional[User]:
-        users = await self.filter(User, User.email == email)
-        return cast(User, users[0] if users else None)
+        Args:
+            session (Session): SQLModel session for database operations.
+        """
+        self.session = session
 
-    async def update_user(self, user_id: int, data: dict) -> Optional[User]:
-        return cast(User, await self.update(User, user_id, data))
+    def create_user(self, user_data: UserCreate) -> User:
+        """
+        Insert a new user into the database.
 
-    async def delete_user(self, user_id: int) -> bool:
-        return await self.delete(User, user_id)
+        Args:
+            user_data (UserCreate): Data for the new user.
 
-    async def list_users(self):
-        return await self.get_all(User)
-
-    async def assign_role(self, user_id: int, role_id: int):
-        # Prevent duplicates
-        exists = await self.exists(UserRole,
-                                   UserRole.user_id == user_id,
-                                   UserRole.role_id == role_id)
-
-        if exists:
-            return None
-
-        relation = UserRole(user_id=user_id, role_id=role_id)
-        return await self.create(relation)
-
-    async def remove_role(self, user_id: int, role_id: int):
-        # fetch the relation
-        relations = await self.filter(
-            UserRole,
-            UserRole.user_id == user_id,
-            UserRole.role_id == role_id
+        Returns:
+            User: The created user ORM object.
+        """
+        user = User(
+            username=user_data.username,
+            email=user_data.email,
+            hashed_password=user_data.password,  # hash in service layer if needed
+            full_name=user_data.full_name
         )
-        if not relations:
-            return False
+        self.session.add(user)
+        self.session.commit()
+        self.session.refresh(user)
+        return user
 
-        relation = cast(UserRole, relations[0])
-        return await self.delete(UserRole, relation.id)
+    def get_user_by_id(self, user_id: str) -> Optional[User]:
+        """
+        Retrieve a user by their ID.
+
+        Args:
+            user_id (str): User's unique ID.
+
+        Returns:
+            Optional[User]: User if found, else None.
+        """
+        statement = select(User).where(User.id == user_id)
+        result = self.session.exec(statement).first()
+        if not result:
+            raise NotFoundError("User", user_id)
+        return result
+
+    def get_user_by_username(self, username: str) -> Optional[User]:
+        """
+        Retrieve a user by their username.
+
+        Args:
+            username (str): User's unique username.
+
+        Returns:
+            Optional[User]: User if found, else None.
+        """
+        statement = select(User).where(User.username == username)
+        result = self.session.exec(statement).first()
+        if not result:
+            raise NotFoundError("User", username)
+        return result
+
+    def update_user(self, user: User, update_data: UserUpdate) -> User:
+        """
+        Update user fields in the database.
+
+        Args:
+            user (User): The existing user ORM object.
+            update_data (UserUpdate): Fields to update.
+
+        Returns:
+            User: Updated user ORM object.
+        """
+        update_dict = update_data.model_dump(exclude_unset=True)
+        for field, value in update_dict.items():
+            setattr(user, field, value)
+        self.session.add(user)
+        self.session.commit()
+        self.session.refresh(user)
+        return user
+
+    def delete_user(self, user: User) -> None:
+        """
+        Delete a user from the database.
+
+        Args:
+            user (User): The user ORM object to delete.
+
+        Returns:
+            None
+        """
+        self.session.delete(user)
+        self.session.commit()

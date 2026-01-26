@@ -3,7 +3,7 @@ from typing import List, Optional
 from uuid import UUID
 from datetime import datetime
 from schemas.tenantSchema import TenantCreate, TenantUpdate, TenantRead
-from Middleware.DataProvider.TenantProvider import TenantProvider
+from Middleware.DataProvider.tenantProvider import TenantProvider
 from backend.core.error import ValidationError
 
 
