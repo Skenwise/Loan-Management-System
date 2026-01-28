@@ -9,17 +9,17 @@ alias deactivate 'test $?_OLD_VIRTUAL_PATH != 0 && setenv PATH "$_OLD_VIRTUAL_PA
 # Unset irrelevant variables.
 deactivate nondestructive
 
-setenv VIRTUAL_ENV "/home/skenwise/Desktop/Project/loanManagementSystem/lms-nv/loanVenv"
+setenv VIRTUAL_ENV /home/skenwise/dbs/Desktop/Project/loanManagementSystem/Loan-Management-System/loanVenv
 
 set _OLD_VIRTUAL_PATH="$PATH"
-setenv PATH "$VIRTUAL_ENV/bin:$PATH"
+setenv PATH "$VIRTUAL_ENV/"bin":$PATH"
 
 
 set _OLD_VIRTUAL_PROMPT="$prompt"
 
 if (! "$?VIRTUAL_ENV_DISABLE_PROMPT") then
-    set prompt = "(loanVenv) $prompt"
-    setenv VIRTUAL_ENV_PROMPT "(loanVenv) "
+    set prompt = '(loanVenv) '"$prompt"
+    setenv VIRTUAL_ENV_PROMPT '(loanVenv) '
 endif
 
 alias pydoc python -m pydoc

@@ -1,4 +1,4 @@
-#!/home/skenwise/Desktop/Project/loanManagementSystem/lms-nv/loanVenv/bin/python3
+#!/home/skenwise/dbs/Desktop/Project/loanManagementSystem/Loan-Management-System/loanVenv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys
