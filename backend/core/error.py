@@ -58,3 +58,15 @@ class AuthorizationError(AureonError):
     required permission or role authority.
     """
     pass
+
+class CalculationError(AureonError):
+    """
+    Exception raised for errors during financial calculations.
+
+    This includes:
+    - Invalid input values (e.g., negative FX rates)
+    - Division by zero or precision errors
+    - Revaluation or conversion failures
+    """
+    pass
+
